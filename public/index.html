@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangSwitcher — macOS Layout Switcher</title>
+    <meta name="description" content="A lightweight, native macOS menu bar utility that automatically converts text typed in the wrong keyboard layout between English and Hebrew.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0E0C1B;
+            --bg-card: #161329;
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-tertiary: rgba(255, 255, 255, 0.45);
+            --accent-blue: #73CCFF;
+            --accent-gold: #FFC238;
+            --purple-glow: #330D61;
+            --purple-deep: #1A0833;
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, var(--purple-glow) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, var(--purple-deep) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        header {
+            padding: 2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: color 0.2s;
+            border-bottom: 2px solid transparent;
+            padding-bottom: 4px;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-blue);
+        }
+
+        main {
+            flex: 1;
+            padding: 3rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 4rem;
+        }
+
+        .hero {
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .app-badge {
+            background: rgba(115, 204, 255, 0.1);
+            color: var(--accent-blue);
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border: 1px solid rgba(115, 204, 255, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -1px;
+        }
+
+        h1 span.blue { color: var(--accent-blue); }
+        h1 span.gold { color: var(--accent-gold); }
+
+        .lead {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .cta-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, var(--accent-blue), #4DA6FF);
+            color: #0E0C1B;
+            font-weight: 800;
+            font-size: 1.15rem;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(115, 204, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-download:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(115, 204, 255, 0.5);
+            background: linear-gradient(135deg, #8CD9FF, var(--accent-blue));
+        }
+
+        .btn-download:active {
+            transform: translateY(-1px);
+        }
+
+        .terminal {
+            background-color: #05040a;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 540px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            text-align: left;
+        }
+
+        .terminal-header {
+            background-color: #12101f;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background-color: #FF5F56; }
+        .terminal-dot.yellow { background-color: #FFBD2E; }
+        .terminal-dot.green { background-color: #27C93F; }
+
+        .terminal-title {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+        }
+
+        .terminal-body {
+            padding: 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            position: relative;
+            line-height: 1.7;
+        }
+
+        .terminal-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .terminal-prompt {
+            color: var(--accent-blue);
+            user-select: none;
+        }
+
+        .terminal-command {
+            color: var(--text-primary);
+        }
+
+        .btn-copy {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-copy:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2.5rem 2rem;
+            border-radius: 16px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(115, 204, 255, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .comparison-section {
+            width: 100%;
+            max-width: 700px;
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            text-align: left;
+        }
+
+        .comparison-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .comparison-table th {
+            font-weight: 600;
+            color: var(--text-tertiary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .comparison-table td {
+            font-size: 1.1rem;
+        }
+
+        .comparison-table td.input-val {
+            font-family: var(--font-mono);
+            color: var(--accent-blue);
+        }
+
+        .comparison-table td.output-val {
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        footer {
+            padding: 3rem 5% 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            .comparison-section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <span class="symbol">A⇄א</span> LangSwitcher
+        </div>
+        <div class="nav-links">
+            <a href="https://github.com/unix14/langswitcher#readme" target="_blank">Documentation</a>
+        </div>
+    </header>
+
+    <main>
+        
+        <section class="hero">
+            <div class="app-badge">macOS Menu Bar Utility</div>
+            <h1>Correct layout typos on the fly.<br><span class="blue">English</span> ⇄ <span class="gold">Hebrew</span></h1>
+            <p class="lead">Select text typed in the wrong layout, hit <code>⌘⇧L</code>, and let LangSwitcher convert and correct it instantly. Zero clipboard conflicts, zero newline doubling.</p>
+            
+            <div class="cta-container">
+                <a href="https://github.com/unix14/langswitcher/releases/download/v1.4/LangSwitcher-1.4.dmg" class="btn-download">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Download DMG (v1.4)
+                </a>
+                
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <div class="terminal-dots">
+                            <div class="terminal-dot red"></div>
+                            <div class="terminal-dot yellow"></div>
+                            <div class="terminal-dot green"></div>
+                        </div>
+                        <div class="terminal-title">bash</div>
+                    </div>
+                    <div class="terminal-body">
+                        <button class="btn-copy" onclick="copyCommand()">Copy</button>
+                        <div class="terminal-line">
+                            <span class="terminal-prompt">$</span>
+                            <span class="terminal-command" id="brew-cmd">brew install --cask unix14/tap/langswitcher</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">⌨️</div>
+                <h3>SI-1452 Israeli Standard</h3>
+                <p>Maps standard English key placements to the standard Hebrew keys (and vice versa) utilizing character frequency analysis.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <h3>Hebrew Grammar Rules</h3>
+                <p>Applies Hebrew final-form letters (ך, ם, ן, ף, ץ) intelligently based on word endpoints, preventing misplaced forms.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <h3>ZeroEntitlements Native API</h3>
+                <p>Leverages low-level Carbon APIs for hotkey listeners, avoiding permissions requests until typing conversion is triggered.</p>
+            </div>
+        </section>
+
+        <section class="comparison-section">
+            <div class="comparison-title">Instant Conversion Mapping</div>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Typed Layout (Wrong)</th>
+                        <th>Translated Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="input-val">jnho</td>
+                        <td class="output-val">חמים</td>
+                    </tr>
+                    <tr>
+                        <td class="input-val">HAHA</td>
+                        <td class="output-val">ישיש</td>
+                    </tr>
+                    <tr>
+                        <td class="input-val">Hello</td>
+                        <td class="output-val">יקככם</td>
+                    </tr>
+                    <tr>
+                        <td class="input-val">ישיש</td>
+                        <td class="output-val">haha</td>
+                    </tr>
+                    <tr>
+                        <td class="input-val">חמים</td>
+                        <td class="output-val">john</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>LangSwitcher v1.4 is open source by <a href="https://github.com/unix14" target="_blank">Eyal Yaakobi</a>.</p>
+        <p>© 2026 Eyal Yaakobi. App licensed under MIT.</p>
+    </footer>
+
+    <script>
+        function copyCommand() {
+            const commandText = document.getElementById('brew-cmd').innerText;
+            navigator.clipboard.writeText(commandText).then(() => {
+                const btn = document.querySelector('.btn-copy');
+                btn.innerText = 'Copied!';
+                btn.style.background = 'rgba(115, 204, 255, 0.2)';
+                btn.style.borderColor = 'var(--accent-blue)';
+                setTimeout(() => {
+                    btn.innerText = 'Copy';
+                    btn.style.background = 'rgba(255, 255, 255, 0.08)';
+                    btn.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
