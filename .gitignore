@@ -1,0 +1,7 @@
+.DS_Store
+.build_release/
+build/
+DerivedData/
+*.moved-aside
+*.xcuserstate
+xcuserdata/
