@@ -1,0 +1,75 @@
+name: Release & Deployment Pipeline
+
+on:
+  release:
+    types: [published]
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-web:
+    name: Deploy to Firebase Hosting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Firebase
+        run: |
+          npx firebase-tools deploy --only hosting --token "${{ secrets.FIREBASE_TOKEN }}"
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+  update-homebrew-cask:
+    name: Update Homebrew Cask
+    if: github.event_name == 'release'
+    runs-on: macos-latest
+    steps:
+      - name: Get Release Info
+        id: release_info
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          # Strip 'v' prefix if present
+          CLEAN_VERSION="${VERSION#v}"
+          echo "version=${CLEAN_VERSION}" >> $GITHUB_OUTPUT
+          
+          # Find DMG asset URL from the release metadata
+          DMG_URL=$(curl -s "https://api.github.com/repos/${{ github.repository }}/releases/tags/${VERSION}" | grep -o 'https://github.com/[^"]*LangSwitcher[^"]*\.dmg' | head -n 1)
+          echo "dmg_url=${DMG_URL}" >> $GITHUB_OUTPUT
+
+      - name: Download Release DMG & Compute Checksum
+        id: checksum
+        run: |
+          curl -L -o LangSwitcher.dmg "${{ steps.release_info.outputs.dmg_url }}"
+          SHA256=$(shasum -a 256 LangSwitcher.dmg | cut -d ' ' -f 1)
+          echo "sha256=${SHA256}" >> $GITHUB_OUTPUT
+
+      - name: Checkout Homebrew Tap Repo
+        uses: actions/checkout@v3
+        with:
+          repository: unix14/homebrew-tap
+          token: ${{ secrets.TAP_GITHUB_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update Cask File
+        run: |
+          CASK_PATH="homebrew-tap/Casks/langswitcher.rb"
+          VERSION="${{ steps.release_info.outputs.version }}"
+          SHA256="${{ steps.checksum.outputs.sha256 }}"
+          
+          # Replace version and sha256 values in the Cask ruby file
+          sed -i '' "s/version \".*\"/version \"${VERSION}\"/g" "${CASK_PATH}"
+          sed -i '' "s/sha256 \".*\"/sha256 \"${SHA256}\"/g" "${CASK_PATH}"
+          
+          echo "--- Updated Cask ---"
+          cat "${CASK_PATH}"
+
+      - name: Commit and Push to homebrew-tap
+        run: |
+          cd homebrew-tap
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/langswitcher.rb
+          git commit -m "Update LangSwitcher Cask to v${{ steps.release_info.outputs.version }}"
+          git push origin main
