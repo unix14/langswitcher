@@ -33,6 +33,14 @@ brew tap unix14/tap
 brew install --cask langswitcher
 ```
 
+> [!NOTE]
+> **Tap Trust & Overwrite Conflicts:**
+> - **Untrusted Tap**: Since this is a personal third-party tap, Homebrew may require you to trust it first. If prompted, run `brew trust unix14/tap` and rerun the install command.
+> - **Existing App Conflict**: If you already have a manual or compiled installation at `/Applications/LangSwitcher.app`, Homebrew will refuse to overwrite it by default. You can force Homebrew to overwrite it by adding the `--force` flag:
+>   ```bash
+>   brew install --cask --force langswitcher
+>   ```
+
 ### 2. Manual Installation
 
 1. Navigate to the [Releases](https://github.com/unix14/langswitcher/releases) section.
