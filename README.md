@@ -81,6 +81,16 @@ To allow **LangSwitcher** to automatically capture and correct text inside other
 3. Toggle the switch next to **LangSwitcher** to enable access.
 4. If you ever need to configure it, click the status bar icon (`A⇄א`) and select **Settings…** or use the shortcut `⌘,`.
 
+### macOS Gatekeeper Security Notice
+
+Because LangSwitcher is compiled and signed locally (ad-hoc) without an active Apple Developer ID, macOS Gatekeeper may show a warning on first launch:
+> *"Apple could not verify LangSwitcher is free of malware..."*
+
+To open it safely:
+1. **Right-click** (or Control-click) `LangSwitcher.app` in your `/Applications` directory.
+2. Select **Open** from the context menu.
+3. Click **Open** in the confirmation dialog. (You will only need to do this once).
+
 ---
 
 ## Development & Compilation
