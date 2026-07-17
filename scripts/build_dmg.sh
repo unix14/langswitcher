@@ -20,10 +20,22 @@ APP_PATH="${DERIVED}/Build/Products/Release/${APP}.app"
 STAGE="${BUILD_DIR}/dmg_stage"
 rm -rf "${STAGE}"; mkdir -p "${STAGE}"
 cp -R "${APP_PATH}" "${STAGE}/"
-ln -s /Applications "${STAGE}/Applications"
 
 [ -f "${DMG}" ] && rm "${DMG}"
-hdiutil create -volname "${APP} ${VERSION}" -srcfolder "${STAGE}" -ov -format UDZO -fs HFS+ "${DMG}"
+
+echo "▶ Generating styled DMG..."
+create-dmg \
+  --volname "${APP} v${VERSION}" \
+  --background "scripts/dmg_background.png" \
+  --window-pos 200 120 \
+  --window-size 600 600 \
+  --icon-size 100 \
+  --icon "${APP}.app" 150 300 \
+  --hide-extension "${APP}.app" \
+  --app-drop-link 450 300 \
+  "${DMG}" \
+  "${STAGE}/"
+
 rm -rf "${STAGE}"
 
 echo "✓ ${DMG} created ($(du -sh "${DMG}" | cut -f1))"
