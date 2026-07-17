@@ -26,7 +26,7 @@ cp -R "${APP_PATH}" "${STAGE}/"
 echo "▶ Generating styled DMG..."
 create-dmg \
   --volname "${APP} v${VERSION}" \
-  --background "scripts/dmg_background.png" \
+  --background "scripts/dmg_background.tiff" \
   --window-pos 200 120 \
   --window-size 600 600 \
   --icon-size 100 \
